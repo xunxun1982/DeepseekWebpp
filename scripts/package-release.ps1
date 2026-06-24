@@ -1,12 +1,13 @@
 param(
   [string]$ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path,
-  [string]$OutputRoot = (Join-Path $ProjectRoot 'dist')
+  [string]$OutputRoot = (Join-Path $ProjectRoot 'dist'),
+  [string]$Version
 )
 
 $ErrorActionPreference = 'Stop'
 
 $packageJson = Get-Content -LiteralPath (Join-Path $ProjectRoot 'package.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-$version = $packageJson.version
+$version = if ($Version) { $Version } else { $packageJson.version }
 $packageName = "DeepseekWebpp-$version"
 $staging = Join-Path $OutputRoot $packageName
 $zipPath = Join-Path $OutputRoot "$packageName.zip"
@@ -21,8 +22,8 @@ if (-not $zipFull.StartsWith($outputFull, [System.StringComparison]::OrdinalIgno
   throw "Refusing to clean a zip path outside output root: $zipFull"
 }
 
-& (Join-Path $ProjectRoot 'scripts\build-native-host-exe.ps1') -ProjectRoot $ProjectRoot
-& (Join-Path $ProjectRoot 'scripts\build-native-host-exe.ps1') -ProjectRoot $ProjectRoot -Architectures @('amd64', '386')
+& (Join-Path $ProjectRoot 'scripts\build-native-host-exe.ps1') -ProjectRoot $ProjectRoot -Version $version
+& (Join-Path $ProjectRoot 'scripts\build-native-host-exe.ps1') -ProjectRoot $ProjectRoot -Architectures @('amd64', '386') -Version $version
 
 New-Item -ItemType Directory -Force -Path $OutputRoot | Out-Null
 if (Test-Path -LiteralPath $staging) {

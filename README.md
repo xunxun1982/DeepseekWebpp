@@ -195,6 +195,18 @@ GrokSearch-rs 示例 MCP JSON：
 
 如果页面结构变化导致自动点击失败，浮窗会保留“继续处理工具结果”按钮作为兜底；点击后仍会把同一句话写入输入框。待续写结果默认 30 秒没有发送会自动重置，避免重开对话后误发送旧结果；这个超时时间可在设置页“运行环境”中按秒调整。扩展不会使用系统级键盘输入，也不会向其他窗口发送按键。
 
+## 发布打包
+
+本项目只支持 Windows 发布包。手动打包时可显式传入版本号：
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts\package-release.ps1 -Version 1.2.3
+```
+
+未传 `-Version` 时，脚本才会回退读取 `package.json` 的 `version`。显式版本会用于 `dist\DeepseekWebpp-<version>`、`dist\DeepseekWebpp-<version>.zip`，并传递给 Go Native Host 构建。
+
+GitHub Release 发布后会自动运行 `.github\workflows\release.yml`。workflow 使用 Release tag 作为显式版本，运行测试和 Windows 打包脚本，并把 `dist\DeepseekWebpp-<tag>.zip` 上传到同一个 Release；beta tag 同样按原 tag 生成 zip 文件名。
+
 ## 天气和时间
 
 天气默认使用 Open-Meteo Forecast/Geocoding API，原因是免费、无需注册、无需 API key，并覆盖中国天气模型。国内商业天气 API 访问通常更稳定，但一般需要 key 或注册，因此不作为默认源。
@@ -281,7 +293,7 @@ native-host\deepseekwebpp-host.exe
 .\scripts\package-release.ps1
 ```
 
-版本号来自 `package.json`。脚本会构建默认 Windows exe，并额外构建 `amd64` 和 `386` 版本，然后生成：
+未传 `-Version` 时版本号来自 `package.json`；发布 workflow 会传入 Release tag 作为显式版本。脚本会构建默认 Windows exe，并额外构建 `amd64` 和 `386` 版本，然后生成：
 
 ```text
 dist\DeepseekWebpp-0.0.1

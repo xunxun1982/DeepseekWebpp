@@ -168,12 +168,37 @@ test('extension launch script prints the matching origin sync command', () => {
 test('package script creates and verifies the release zip', () => {
   const script = fs.readFileSync('scripts/package-release.ps1', 'utf8');
 
+  assert.match(script, /\[string\]\$Version/);
   assert.match(script, /Compress-Archive -Path/);
   assert.match(script, /Test-Path -LiteralPath \$zipPath/);
   assert.match(script, /\$packageJson = Get-Content[^\n]+package\.json/);
+  assert.match(script, /\$version = if \(\$Version\)/);
+  assert.match(script, /-Version \$version/);
   assert.match(script, /\$packageName = "DeepseekWebpp-\$version"/);
   assert.doesNotMatch(script, /portable/);
   assert.doesNotMatch(script, /Compress-Archive -LiteralPath \(Join-Path \$staging '\*'\)/);
+});
+
+test('release workflow packages published releases as zip assets', () => {
+  const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8');
+
+  assert.match(workflow, /^on:\n\s+release:\n\s+types:\s+\[published\]/m);
+  assert.match(workflow, /^permissions:\n\s+contents:\s+write/m);
+  assert.match(workflow, /GO_VERSION:\s+"1\.26\.3"/);
+  assert.match(workflow, /NODE_VERSION:\s+"26\.3\.0"/);
+  assert.match(workflow, /runs-on:\s+windows-latest/);
+  assert.match(workflow, /actions\/checkout@v6/);
+  assert.match(workflow, /actions\/setup-go@v6/);
+  assert.match(workflow, /cache:\s+false/);
+  assert.match(workflow, /actions\/setup-node@v6/);
+  assert.match(workflow, /\$version = '\$\{\{ github\.event\.release\.tag_name \}\}'/);
+  assert.match(workflow, /scripts\\package-release\.ps1 -Version \$version/);
+  assert.match(workflow, /\$zipPath = "dist\\DeepseekWebpp-\$version\.zip"/);
+  assert.match(workflow, /softprops\/action-gh-release@v3/);
+  assert.match(workflow, /tag_name:\s+\$\{\{ github\.event\.release\.tag_name \}\}/);
+  assert.match(workflow, /files:\s+dist\/DeepseekWebpp-\$\{\{ github\.event\.release\.tag_name \}\}\.zip/);
+  assert.match(workflow, /fail_on_unmatched_files:\s+true/);
+  assert.doesNotMatch(workflow, /docker/i);
 });
 
 test('gitignore excludes generated files and local dot directories only', () => {
@@ -182,6 +207,8 @@ test('gitignore excludes generated files and local dot directories only', () => 
   assert.match(gitignore, /^\.\[!\.\]\*\/$/m);
   assert.match(gitignore, /^!\.git\/$/m);
   assert.match(gitignore, /^!\.gitignore$/m);
+  assert.match(gitignore, /^!\.github\/$/m);
+  assert.match(gitignore, /^!\.github\/\*\*$/m);
   assert.match(gitignore, /^\.chrome-\*\/$/m);
   assert.match(gitignore, /^\.agents\/$/m);
   assert.match(gitignore, /^dist\/$/m);
@@ -200,7 +227,7 @@ test('project version is sourced from package metadata', () => {
 
   assert.equal(packageJson.version, '0.0.1');
   assert.equal(manifest.version, packageJson.version);
-  assert.match(packageScript, /\$version = \$packageJson\.version/);
+  assert.match(packageScript, /\$version = if \(\$Version\) \{ \$Version \} else \{ \$packageJson\.version \}/);
   assert.match(nodeTools, /clientInfo: \{ name: 'DeepseekWebpp', version: packageVersion \}/);
   assert.match(nodeTools, /`DeepseekWebpp\/\$\{packageVersion\}`/);
   assert.match(goHost, /var appVersion = "0\.0\.0-dev"/);
@@ -211,6 +238,8 @@ test('project version is sourced from package metadata', () => {
 test('native host exe build strips debug metadata without upx', () => {
   const script = fs.readFileSync('scripts/build-native-host-exe.ps1', 'utf8');
 
+  assert.match(script, /\[string\]\$Version/);
+  assert.match(script, /\$version = if \(\$Version\) \{ \$Version \} else \{ \$packageJson\.version \}/);
   assert.match(script, /-trimpath/);
   assert.match(script, /-buildvcs=false/);
   assert.match(script, /\$ldflags = "-s -w -buildid= -X main\.appVersion=\$version"/);

@@ -1,6 +1,7 @@
 param(
   [string]$ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path,
-  [string[]]$Architectures = @()
+  [string[]]$Architectures = @(),
+  [string]$Version
 )
 
 $ErrorActionPreference = 'Stop'
@@ -13,7 +14,7 @@ if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
 }
 
 $packageJson = Get-Content -LiteralPath (Join-Path $ProjectRoot 'package.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-$version = $packageJson.version
+$version = if ($Version) { $Version } else { $packageJson.version }
 $ldflags = "-s -w -buildid= -X main.appVersion=$version"
 
 function Invoke-GoBuild {
