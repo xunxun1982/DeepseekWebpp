@@ -2,7 +2,13 @@ name: Release Package
 
 on:
   release:
-    types: [published]
+    types: [published, edited]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag/version to package
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -10,6 +16,7 @@ permissions:
 env:
   GO_VERSION: "1.26.3"
   NODE_VERSION: "26.3.0"
+  RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.event.release.tag_name }}
 
 jobs:
   package:
@@ -37,7 +44,7 @@ jobs:
       - name: Build release zip
         shell: pwsh
         run: |
-          $version = '${{ github.event.release.tag_name }}'
+          $version = '${{ env.RELEASE_VERSION }}'
           .\scripts\package-release.ps1 -Version $version
           $zipPath = "dist\DeepseekWebpp-$version.zip"
           if (-not (Test-Path -LiteralPath $zipPath)) {
@@ -47,7 +54,7 @@ jobs:
       - name: Upload zip to release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ github.event.release.tag_name }}
-          files: dist/DeepseekWebpp-${{ github.event.release.tag_name }}.zip
+          tag_name: ${{ env.RELEASE_VERSION }}
+          files: dist/DeepseekWebpp-${{ env.RELEASE_VERSION }}.zip
           fail_on_unmatched_files: true
           overwrite_files: true

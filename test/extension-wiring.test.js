@@ -180,24 +180,27 @@ test('package script creates and verifies the release zip', () => {
 });
 
 test('release workflow packages published releases as zip assets', () => {
-  const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8');
+  const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8').replace(/\r\n/g, '\n');
 
-  assert.match(workflow, /^on:\n\s+release:\n\s+types:\s+\[published\]/m);
+  assert.match(workflow, /^on:\n\s+release:\n\s+types:\s+\[published,\s+edited\]/m);
+  assert.match(workflow, /workflow_dispatch:\n\s+inputs:\n\s+version:/);
   assert.match(workflow, /^permissions:\n\s+contents:\s+write/m);
   assert.match(workflow, /GO_VERSION:\s+"1\.26\.3"/);
   assert.match(workflow, /NODE_VERSION:\s+"26\.3\.0"/);
+  assert.match(workflow, /RELEASE_VERSION:\s+\$\{\{ github\.event_name == 'workflow_dispatch' && inputs\.version \|\| github\.event\.release\.tag_name \}\}/);
   assert.match(workflow, /runs-on:\s+windows-latest/);
   assert.match(workflow, /actions\/checkout@v6/);
   assert.match(workflow, /actions\/setup-go@v6/);
   assert.match(workflow, /cache:\s+false/);
   assert.match(workflow, /actions\/setup-node@v6/);
-  assert.match(workflow, /\$version = '\$\{\{ github\.event\.release\.tag_name \}\}'/);
+  assert.match(workflow, /\$version = '\$\{\{ env\.RELEASE_VERSION \}\}'/);
   assert.match(workflow, /scripts\\package-release\.ps1 -Version \$version/);
   assert.match(workflow, /\$zipPath = "dist\\DeepseekWebpp-\$version\.zip"/);
   assert.match(workflow, /softprops\/action-gh-release@v3/);
-  assert.match(workflow, /tag_name:\s+\$\{\{ github\.event\.release\.tag_name \}\}/);
-  assert.match(workflow, /files:\s+dist\/DeepseekWebpp-\$\{\{ github\.event\.release\.tag_name \}\}\.zip/);
+  assert.match(workflow, /tag_name:\s+\$\{\{ env\.RELEASE_VERSION \}\}/);
+  assert.match(workflow, /files:\s+dist\/DeepseekWebpp-\$\{\{ env\.RELEASE_VERSION \}\}\.zip/);
   assert.match(workflow, /fail_on_unmatched_files:\s+true/);
+  assert.match(workflow, /overwrite_files:\s+true/);
   assert.doesNotMatch(workflow, /docker/i);
 });
 
