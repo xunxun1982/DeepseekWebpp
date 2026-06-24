@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>DeepseekWeb++ 设置</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="deepseekwebpp-page">
+    <main class="options-shell">
+      <header class="options-header">
+        <div>
+          <h1>DeepseekWeb++</h1>
+          <p>管理本地工具、白名单范围和运行状态。</p>
+        </div>
+        <button id="save" class="primary-button" type="button" hidden>保存白名单</button>
+      </header>
+
+      <div class="settings-layout">
+        <nav class="settings-nav" aria-label="设置分区">
+          <button class="active" type="button" data-section="overview">总览</button>
+          <button type="button" data-section="tools">工具</button>
+          <button type="button" data-section="web-search">联网搜索</button>
+          <button type="button" data-section="whitelist">白名单</button>
+          <button type="button" data-section="runtime">运行环境</button>
+          <button type="button" data-section="appearance">外观</button>
+        </nav>
+
+        <div class="settings-content">
+          <section id="section-overview" class="settings-section active" data-section-panel="overview">
+            <h2>总览</h2>
+            <div class="overview-grid">
+              <div class="overview-item">
+                <span>工具模式</span>
+                <strong>页面浮窗控制</strong>
+              </div>
+              <div class="overview-item">
+                <span>确认方式</span>
+                <strong>当前 DeepSeek 标签页内确认</strong>
+              </div>
+              <div class="overview-item">
+                <span>Native Host</span>
+                <strong>便携 exe 优先</strong>
+              </div>
+            </div>
+          </section>
+
+          <section id="section-tools" class="settings-section" data-section-panel="tools">
+            <h2>工具目录</h2>
+            <p class="section-note">这里展示 DeepSeek 可主动调用的工具。新增工具后，记得同步 Native Host、提示词、权限策略和测试。</p>
+            <div id="tools-grid" class="tools-grid"></div>
+          </section>
+
+          <section id="section-web-search" class="settings-section" data-section-panel="web-search">
+            <div class="section-heading">
+              <div>
+                <h2>web_search 设置</h2>
+                <p class="section-note">默认使用 DuckDuckGo。Bing 和 DuckDuckGo 无额外参数；MCP 使用 mcpServers 配置。</p>
+              </div>
+              <button id="save-web-search" class="primary-button" type="button">保存搜索设置</button>
+            </div>
+
+            <div class="web-search-grid">
+              <label>
+                搜索提供方
+                <select id="web-search-provider">
+                  <option value="duckduckgo">DuckDuckGo（默认，无 API）</option>
+                  <option value="bing">Bing（无 API）</option>
+                  <option value="mcp">本地 MCP</option>
+                </select>
+              </label>
+            </div>
+
+            <section id="web-search-no-api-section" class="settings-subsection">
+              <h3>无需 API</h3>
+              <p class="section-note">Bing 和 DuckDuckGo 只需要能访问对应网页，无需填写额外参数。</p>
+            </section>
+
+            <section id="web-search-mcp-section" class="settings-subsection" hidden>
+              <h3>本地 MCP：GrokSearch-rs</h3>
+              <p class="section-note">这里填写 mcpServers 风格 JSON。`command` 可以是 PATH 中的 `grok-search-rs`，也可以是你自己的绝对路径。</p>
+              <textarea id="web-search-mcp-json" class="settings-code-input" spellcheck="false"></textarea>
+              <button id="test-web-search-mcp" class="secondary-button" type="button">测试 MCP 搜索</button>
+            </section>
+
+            <div id="web-search-status" class="rules-summary"></div>
+          </section>
+
+          <section id="section-whitelist" class="settings-section" data-section-panel="whitelist">
+            <div class="section-heading">
+              <div>
+                <h2>白名单</h2>
+                <p class="section-note">白名单按工具和作用范围匹配。文件变更类工具仍会每次确认。</p>
+              </div>
+            </div>
+
+            <section class="rules-toolbar" aria-label="白名单筛选">
+              <label>
+                搜索
+                <input id="rule-search" type="search" placeholder="工具、目录、程序或范围">
+              </label>
+              <label>
+                工具
+                <select id="tool-filter">
+                  <option value="all">全部工具</option>
+                </select>
+              </label>
+            </section>
+
+            <div id="rules-summary" class="rules-summary"></div>
+            <div id="rules" class="rules-list"></div>
+          </section>
+
+          <section id="section-runtime" class="settings-section" data-section-panel="runtime">
+            <div class="section-heading">
+              <div>
+                <h2>运行环境</h2>
+                <p class="section-note">运行状态和工具结果续写设置保存在浏览器本地数据中。</p>
+              </div>
+              <button id="save-runtime-settings" class="primary-button" type="button">保存运行设置</button>
+            </div>
+            <div class="runtime-grid">
+              <label>
+                Native Host
+                <output id="host-path"></output>
+              </label>
+              <label>
+                扩展 ID
+                <output id="extension-id"></output>
+              </label>
+              <label>
+                工具结果续写超时（秒）
+                <input id="tool-result-timeout-seconds" type="number" min="30" max="1800" step="1">
+              </label>
+              <label>
+                网络工具超时（秒）
+                <input id="network-tool-timeout-seconds" type="number" min="10" max="600" step="1">
+              </label>
+              <label>
+                单次最大执行工具数
+                <input id="tool-call-batch-limit" type="number" min="1" max="5" step="1">
+              </label>
+              <label>
+                最大并行工具数
+                <input id="tool-call-parallel-limit" type="number" min="1" max="5" step="1">
+              </label>
+              <label>
+                全部自动允许
+                <input id="auto-allow-all-tools" type="checkbox">
+              </label>
+            </div>
+            <div id="runtime-status" class="rules-summary"></div>
+          </section>
+
+          <section id="section-appearance" class="settings-section" data-section-panel="appearance">
+            <h2>外观</h2>
+            <p class="section-note">页面浮窗默认位于右侧中部，可拖动；位置会保存在浏览器本地存储中。</p>
+          </section>
+        </div>
+      </div>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

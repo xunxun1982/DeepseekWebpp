@@ -1,0 +1,9 @@
+{
+    "name":  "com.deepseekwebpp.native_host",
+    "description":  "Native host for DeepseekWeb++",
+    "path":  "bin\\windows-amd64\\deepseekwebpp-host.exe",
+    "type":  "stdio",
+    "allowed_origins":  [
+                            "chrome-extension://pekhajhcngbijamcdcfghiakcgebmijc/"
+                        ]
+}

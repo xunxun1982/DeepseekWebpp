@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>确认工具调用</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="deepseekwebpp-page">
+    <main>
+      <h1>确认工具调用</h1>
+      <pre id="request"></pre>
+      <label>
+        授权范围
+        <select id="scope">
+          <option value="exact">当前参数范围</option>
+          <option value="any">此工具任意参数</option>
+        </select>
+      </label>
+      <div class="actions">
+        <button id="allow-once" type="button">仅本次允许</button>
+        <button id="allow-scope" type="button">加入白名单并允许</button>
+        <button id="deny" type="button">拒绝</button>
+      </div>
+    </main>
+    <script src="confirm.js"></script>
+  </body>
+</html>

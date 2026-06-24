@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "DeepseekWeb++",
+  "version": "0.0.1",
+  "description": "DeepseekWeb++ bridges DeepSeek chat tool calls to approved local tools.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["nativeMessaging", "storage", "tabs"],
+  "host_permissions": ["https://chat.deepseek.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chat.deepseek.com/*"],
+      "js": ["tool-call-parser.js", "content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["page-injector.js"],
+      "matches": ["https://chat.deepseek.com/*"]
+    }
+  ],
+  "options_page": "options.html"
+}

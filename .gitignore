@@ -1,0 +1,14 @@
+.[!.]*/
+!.git/
+!.gitignore
+.chrome-*/
+.agents/
+*.log
+dist/
+dist/DeepseekWebpp-*/
+dist/DeepseekWebpp-*.zip
+node_modules/
+native-host/deepseekwebpp-host.exe
+native-host/bin/
+implementation-notes.md
+docs/

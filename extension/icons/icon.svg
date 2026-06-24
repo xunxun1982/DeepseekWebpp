@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="DeepseekWeb++">
+  <defs>
+    <linearGradient id="bg" x1="18" y1="12" x2="112" y2="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="0.55" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#020617" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <path d="M104 84a12 12 0 0 1-12 12H46.97a12 12 0 0 0-8.49 3.51L25.27 112.73A4.26 4.26 0 0 1 18 109.72V32a12 12 0 0 1 12-12h62a12 12 0 0 1 12 12z" fill="none" stroke="#f8fafc" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
+  <path d="M57 48 40 64l17 16" fill="none" stroke="#bfdbfe" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M71 80 88 64 71 48" fill="none" stroke="#ccfbf1" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
